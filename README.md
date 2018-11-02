@@ -55,6 +55,30 @@ Let's run an example:
           ros-kinetic-rosbridge-server \
           ros-kinetic-tf2-web-republisher
 
+1. Install the Caddy web server, which will help us serve PR2 meshes with appropriate CORS settings:
+
+        curl https://getcaddy.com | bash -s personal http.cors
+
+1. Copy the PR2 description in a place where it can be served from:
+
+        mkdir ~/pr2_meshes -p
+        cp -r /opt/ros/kinetic/share/pr2_description ~/pr2_meshes
+
+1. Create a `Caddyfile` in that directory with the following contents:
+
+        cd ~/pr2_meshes
+        vi Caddyfile
+
+    Caddyfile:
+
+
+        0.0.0.0:8001
+        cors
+
+1. Start Caddy to serve the meshes on port 8081:
+
+        caddy
+
 1. Start a Gazebo simulation of a PR2 robot, this will open a Gazebo window with
    a PR2 in an empty world.
 
