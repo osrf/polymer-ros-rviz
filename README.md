@@ -35,7 +35,7 @@ To run the demo, run `rosbridge`, `tf2_web_republisher`, and the interactive mar
 
    > The hostname is recommended if you're running from inside docker.
 
-   > By default, it will serve on port 8081
+   > By default, it will serve on port 8001
 
 1. View demo:
 
