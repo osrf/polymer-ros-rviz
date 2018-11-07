@@ -108,3 +108,8 @@ roscore
 roslaunch rosbridge_server rosbridge_websocket.launch
 polymer test
 ```
+
+## Troubleshooting
+
+If the robot doesn't show up by following the steps above, check that `roslibjs` and `rosbridge` are working properly. Try following [roslibjs basic tutorial](http://wiki.ros.org/roslibjs/Tutorials/BasicRosFunctionality), and ensure that you can publish / subscribe to topics using Javascript. If subscriptions and parameters don't work, try reinstalling `twisted` Python package as recommended [here](https://github.com/RobotWebTools/rosbridge_suite/issues/336#issuecomment-398541498), restart the bridge and check the communication once again. If it works, try displaying the robot again.
+
