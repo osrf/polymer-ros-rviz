@@ -67,15 +67,8 @@
           return;
 
         for (var i in this._tfs) {
-          this._hideTf(this._tfs[i], i);
+          this._toggleTf(i, false);
         }
-      },
-
-      _hideTf: function(tf, index) {
-        this.viewer.scene.remove(tf.node);
-
-        tf.visible = false;
-        this.notifyPath('_tfs.' + index + '.visible')
       },
 
       show: function() {
@@ -83,19 +76,26 @@
           return;
 
         for (var i in this._tfs) {
-          this._showTf(this._tfs[i], i);
+          this._toggleTf(i, true);
         }
       },
 
-      _showTf: function(tf, index) {
-        this.viewer.addObject(tf.node);
+      _toggleTf: function(index, show) {
+        if (show) {
+          this.viewer.addObject(this._tfs[index].node);
+        }
+        else {
+          this.viewer.scene.remove(this._tfs[index].node);
+        }
 
-        tf.visible = true;
+        this._tfs[index].visible = show;
         this.notifyPath('_tfs.' + index + '.visible')
       },
 
       _updateDisplay: function() {
         if (undefined === this._topic) {
+          // TODO(louise): It's not a good idea to subscribe to /tf
+          // find an alternative way of getting the list.
           this._topic = new ROSLIB.Topic({
             ros: this.ros,
             name: '/tf',
@@ -110,7 +110,6 @@
       },
 
       _onTf: function(that, msg) {
-
         for (var t of msg.transforms) {
           that._addFrame(t.child_frame_id);
         }
@@ -119,17 +118,18 @@
       _callback: function(that, frame, tf) {
         // Check if it already exists
         var tfNode = undefined;
-        for (var t of that._tfs) {
-          if (t.frame === frame) {
-            tfNode = t.node;
-            break;
-          }
-        }
+
+        var t = that._tfs.find(element => element.frame === frame);
+
+        if (undefined !== t)
+          tfNode = t.node;
 
         // If it doesn't, create it
         if (undefined === tfNode) {
           var tfObj = new ROS3D.Axes({
-            shaftRadius: 0.05
+            shaftRadius: 0.05,
+            headLength: 0.001,
+            headRadius: 0.001
           });
           tfObj.scale.set(0.1, 0.1, 0.1);
 
@@ -177,19 +177,13 @@
         var frame = e.target.value;
         var show = e.target.checked;
 
-        for (var i in this._tfs) {
-          if (this._tfs[i].frame === frame) {
-            if (show) {
-              this._showTf(this._tfs[i], i);
-            }
-            else {
-              this._hideTf(this._tfs[i], i);
-            }
-            break;
-          }
-        }
-      },
+        var index = this._tfs.findIndex(tf => tf.frame === frame);
 
+        if (index < 0)
+          return;
+
+        this._toggleTf(index, show);
+      }
     });
   </script>
 </dom-module>
