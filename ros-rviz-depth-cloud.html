@@ -8,8 +8,8 @@
 -->
 <dom-module id="ros-rviz-depth-cloud">
   <template>
-    <paper-input always-float-label label="ros_web_video encoded depth image URL:" value="{{_topic}}" on-blur="_onOptionsChanged">
-      <div slot="prefix">[[globalOptions.videoServer]]/www/</div>
+    <paper-input always-float-label label="web_video_server encoded depth image URL:" value="{{_topic}}" on-blur="_onOptionsChanged">
+      <div slot="prefix" style="font-family: 'Roboto', 'Noto', sans-serif;">[[globalOptions.videoServer]]</div>
     </paper-input>
     <paper-input label="Camera frame ID" value="{{_frameId}}" on-blur="_onOptionsChanged"></paper-input>
   </template>
@@ -20,7 +20,7 @@
       properties: {
         topic: {
           type: String,
-          value: 'depthcloud_encoded',
+          value: '/depthcloud_encoded',
           notify: true,
         },
         frameId: {
@@ -73,7 +73,7 @@
         }
 
         this.destroy();
-        var url = videoServer + '/streams/' + topic + '.webm?enc=webm&bitrate=250000&framerate=15';
+        var url = videoServer + '/stream?topic=' + topic + '&type=vp8&bitrate=250000&framerate=15';
         this._cloud = new ROS3D.DepthCloud({
           url: url,
           f: 525.0,
