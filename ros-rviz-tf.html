@@ -23,6 +23,8 @@
         color: var(--paper-red-500);
       }
     </style>
+    <paper-input label="TF prefix" value="{{tfPrefix}}"></paper-input>
+
     <template is="dom-repeat" items="[[_tfs]]">
       <div class="layout horizontal center">
         <paper-checkbox on-change="_toggleFrame" checked={{item.visible}} value={{item.frame}}>
@@ -44,6 +46,10 @@
         },
         ros: Object,
         tfClient: Object,
+        tfPrefix: {
+          type: String,
+          value: '',
+        },
         viewer: Object,
         _tfs: {
           type: Array,
@@ -51,6 +57,10 @@
         },
         _topic: Object,
       },
+
+      observers: [
+        '_optionsChanged(tfPrefix)',
+      ],
 
       ready: function() {
         this._updateDisplay();
@@ -78,6 +88,12 @@
         for (var i in this._tfs) {
           this._toggleTf(i, true);
         }
+      },
+
+      _optionsChanged(tfPrefix) {
+        this.hide();
+        this._tfs = [];
+        this._updateDisplay();
       },
 
       _toggleTf: function(index, show) {
@@ -111,7 +127,11 @@
 
       _onTf: function(that, msg) {
         for (var t of msg.transforms) {
-          that._addFrame(t.child_frame_id);
+          // Only add frames starting with the configured prefix.
+          if (t.header.frame_id.startsWith(that.tfPrefix) ||
+              t.child_frame_id.startsWith(that.tfPrefix)) {
+            that._addFrame(t.child_frame_id);
+          }
         }
       },
 
