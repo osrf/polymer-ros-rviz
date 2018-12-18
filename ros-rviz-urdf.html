@@ -5,6 +5,7 @@
 <dom-module id="ros-rviz-urdf">
   <template>
     <paper-input label="Robot description topic" value="{{param}}"></paper-input>
+    <paper-input label="TF prefix" value="{{tfPrefix}}"></paper-input>
   </template>
   <script>
     Polymer({
@@ -20,6 +21,11 @@
           value: 'robot_description',
           notify: true,
         },
+        tfPrefix: {
+          type: String,
+          value: '',
+          notify: true,
+        },
         globalOptions: Object,
         isShown: Boolean,
         ros: Object,
@@ -29,7 +35,7 @@
       },
 
       observers: [
-        '_optionsChanged(param, tfClient, ros, globalOptions.colladaLoader, globalOptions.colladaServer)',
+        '_optionsChanged(param, tfPrefix, tfClient, ros, globalOptions.colladaLoader, globalOptions.colladaServer)',
       ],
 
       destroy: function() {
@@ -87,7 +93,7 @@
             urdfModel: urdfModel,
             path: that.globalOptions.colladaServer,
             tfClient: that.tfClient,
-            tfPrefix: '',
+            tfPrefix: that.tfPrefix,
             loader: loader
           });
           callback && callback();
