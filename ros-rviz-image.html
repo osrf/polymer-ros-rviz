@@ -110,6 +110,8 @@
             messageType : _transportHints[this.transport_hints].type
         });
 
+        this._initCanvas(canvas, context);
+
         let updatingImage = false;
 
         this._imageTopic.subscribe(function(message) {
@@ -170,6 +172,16 @@
           document.onmousemove = null;
         }
     },
+
+    _initCanvas: function(canvas, context) {
+        context.fillStyle = "black";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        context.font = "30pt Roboto";
+        context.fillStyle = "white";
+        context.fillText("No image", 55, 240);
+    },
+
     });
   </script>
 </dom-module>
