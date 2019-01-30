@@ -198,6 +198,14 @@ Example:
         },
 
         /**
+         * A flag to track whether we've already loaded the initial config file from a param.
+         */
+        initialized: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
          * A ROS connection object taken from the `ros` property of the `<ros-websocket>` element.
          */
         ros: {
@@ -449,6 +457,10 @@ Example:
           transThres: 0.01,
           rate: 10.0
         });
+
+        if (this.initialized)
+          return;
+        this.initialized = true;
 
         this._configParam = new ROSLIB.Param({
           ros: this.ros,
