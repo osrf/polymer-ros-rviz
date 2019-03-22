@@ -7,6 +7,22 @@
 
 <dom-module id="ros-rviz-image">
   <template>
+    <style>
+      #image_stream {
+        float: left;
+        margin-left: 105%;
+      }
+      #canvas_div {
+        position: fixed;
+        z-index: 9;
+        background-color: transparent;
+      }
+    </style>
+    <div id="image_stream">
+      <div id="canvas_div" title="[[topic]]">
+        <canvas id="xy_image" width="280px;" height="280px;"/>
+      </div>
+    </div>
     <paper-input label="Image topic" value="{{topic}}"></paper-input>
     <paper-dropdown-menu id="transport_hints_dropdown" label="Transport hints" on-iron-select="transportHintSelected">
       <paper-listbox slot="dropdown-content" class="dropdown-content" selected="0">
@@ -14,11 +30,6 @@
         <paper-item>CompressedDepth</paper-item>
       </paper-listbox>
     </paper-dropdown-menu>
-    <div style="position: relative;">
-      <div id="canvas_div" style="position: fixed; z-index: 9; background-color: transparent;" title="[[topic]]">
-        <canvas id="xy_image" width="280px;" height="280px;"/>
-      </div>
-    </div>
   </template>
   <script>
     const _transportHints = {
