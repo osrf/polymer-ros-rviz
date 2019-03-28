@@ -56,6 +56,8 @@
           value: []
         },
         _topic: Object,
+        _static_topic: Object,
+        _subscribed_frames: Object,
       },
 
       observers: [
@@ -117,10 +119,22 @@
             name: '/tf',
             messageType: 'tf2_msgs/TFMessage',
           });
+
+          this._static_topic = new ROSLIB.Topic({
+            ros: this.ros,
+            name: '/tf_static',
+            messageType: 'tf2_msgs/TFMessage',
+          });
         }
 
+        this._subscribed_frames = new Set();
         var that = this;
+
         this._topic.subscribe(function(msg) {
+          that._onTf(that, msg);
+        });
+
+        this._static_topic.subscribe(function(msg) {
           that._onTf(that, msg);
         });
       },
@@ -188,9 +202,12 @@
 
       _addFrame: function(frame) {
         that = this;
-        this.tfClient.subscribe(frame, function(tf) {
-          that._callback(that, frame, tf);
-        });
+        if (!this._subscribed_frames.has(frame)) {
+          this._subscribed_frames.add(frame);
+          this.tfClient.subscribe(frame, function(tf) {
+            that._callback(that, frame, tf);
+          });
+        }
       },
 
       _toggleFrame: function(e) {
