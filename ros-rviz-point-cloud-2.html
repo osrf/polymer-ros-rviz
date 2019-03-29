@@ -6,6 +6,10 @@
   <template>
     <paper-input label="Topic" value="{{topic}}"></paper-input>
     <paper-input label="Size" value="{{size}}"></paper-input>
+    <paper-input label="Color source" value="{{colorSource}}"></paper-input>
+    <paper-checkbox checked={{applyRGB8PCT}} value={{applyRGB8PCT}}>
+      Apply RGB8 color transformation
+    </paper-checkbox>
   </template>
   <script>
     Polymer({
@@ -26,6 +30,16 @@
           value: 0.01,
           notify: true,
         },
+        colorSource: {
+          type: String,
+          value: 'rgb',
+          notify: true,
+        },
+        applyRGB8PCT: {
+          type: Boolean,
+          value: true,
+          notify: true,
+        },
         globalOptions: Object,
         isShown: Boolean,
         ros: Object,
@@ -35,7 +49,7 @@
       },
 
       observers: [
-        '_optionsChanged(topic, size, viewer, ros)',
+        '_optionsChanged(topic, size, colorSource, applyRGB8PCT, viewer, ros)',
       ],
 
       destroy: function() {
@@ -60,7 +74,7 @@
         }
       },
 
-      _optionsChanged: function(topic, size, viewer, ros) {
+      _optionsChanged: function(topic, size, colorSource, applyRGB8PCT, viewer, ros) {
         var that = this;
         this.debounce('updateForOptions', function() {
           that.hide();
@@ -73,16 +87,40 @@
           return;
         }
         this.destroy();
+        this._rgb_lut = new Float32Array(256);
+        for (var i = 0; i < 256; i++) {
+          this._rgb_lut[i] = i / 255.0
+        }
+        this._floatColor = new Float32Array(1);
         var that = this;
+
+        let colormap = undefined;
+        if (this.applyRGB8PCT) {
+          colormap = function(x) {
+            that._floatColor[0] = x;
+            const intColorArray = new Int32Array(that._floatColor.buffer);
+            const intColor = intColorArray[0];
+
+            return {
+              r: that._rgb_lut[(intColor >> 16) & 0xff],
+              g: that._rgb_lut[(intColor >> 8) & 0xff],
+              b: that._rgb_lut[(intColor) & 0xff],
+              a: 1.0
+            };
+          }
+        }
+
         this._pc2 = new ROS3D.PointCloud2({
           ros: this.ros,
           topic: this.topic,
           material: {
             size: this.size,
           },
+          colorsrc: this.colorSource,
           max_pts: 307200,
           tfClient: this.tfClient,
-          rootObject: this.viewer.scene
+          rootObject: this.viewer.scene,
+          colormap: colormap
         });
 
         callback && callback();
